@@ -1,0 +1,37 @@
+{
+  "name": "ll-project-heb140-bots",
+  "version": "1.0.0",
+  "description": "an ensemble of bots",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_ENV=dev nodemon ./app.js",
+    "start": "NODE_ENV=production node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkuzmick/ll-project-heb140-bots.git"
+  },
+  "keywords": [
+    "slack",
+    "ai",
+    "bots"
+  ],
+  "author": "mk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mkuzmick/ll-project-heb140-bots/issues"
+  },
+  "homepage": "https://github.com/mkuzmick/ll-project-heb140-bots#readme",
+  "dependencies": {
+    "@slack/bolt": "^3.18.0",
+    "airtable": "^0.12.2",
+    "axios": "^1.7.2",
+    "clear": "^0.1.0",
+    "dotenv": "^16.4.5",
+    "learninglab-log": "^1.0.2",
+    "node-cron": "^3.0.3",
+    "openai": "^4.51.0",
+    "yargs": "^17.7.2"
+  }
+}
