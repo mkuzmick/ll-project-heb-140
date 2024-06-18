@@ -1,48 +1,9 @@
 const llog = require('learninglab-log')
 const bots = require('../bots');
 const OpenAI = require('openai');
-
-const imHandler = async ({client, message, say}) => {
-    llog.magenta(`got an im from <@${message.user}>`);
-    llog.blue(message);
-    await say(`...`);
-    try {
-        const openai = new OpenAI({
-            apiKey: process.env.OPENAI_API_KEY
-        });
-
-        let result = await client.conversations.history({channel: message.channel, limit: 20})
-        llog.magenta("result", result)
-        const conversation = result.messages.map(message => {
-            return {
-                writer: message.user,
-                text: message.text
-            }
-        })
-        let oAiCompletion = await openai.chat.completions.create({
-            messages: [
-                { role: "system", content: "You are a helpful assistant who functions as a writing tutor and you are helping me write my paper on the evolution of Friendship." },
-                { role: "user", content: `here is the JSON fora conversation between me and you, I am ${message.user} and you are the bots, please respond with the next appropriate thing to say given the conversation thread, but return only the value of message.text, not actual JSON: ${JSON.stringify(conversation)}` }
-            ],
-            model: "gpt-4o",
-          });
-
-          console.log(oAiCompletion.choices[0]);
-          let slackResult = await client.chat.postMessage({
-            channel: message.channel,
-            text: `${oAiCompletion.choices[0].message.content}`,
-            // icon_url: randomBot.imageUrl,
-            username: "Writing Tutor"
-        });
-        // llog.magenta(oAiCompletion)
-    } catch (error) {
-        llog.red(error)
-    }
-
-
-    
-
-}
+const writingTutorFriend = require('../bots/friends/writing-tutor-friend')
+const frenemy = require('../bots/friends/frenemy')
+const bestFriend = require('../bots/friends/best-friend')
 
 exports.testing = async ({ message, say }) => {
     // say() sends a message to the channel where the event was triggered
@@ -53,10 +14,29 @@ exports.parseAll = async ({ client, message, say, event }) => {
     // const loggerBotResult = await loggerBot({ client, message, say, event });
     // const directorResult = await directorBot({ client, message, say, event });
     if ( message.channel_type == "im" ) {
-       const imResponseResult = await imHandler({ client, message, say });
+       const writingTutorResponse = await writingTutorFriend({ client, message, say });
+       llog.cyan(writingTutorResponse)
+       const frenemyResult = await frenemy({
+            client,
+            message,
+            writingTutorMessage: writingTutorResponse.tutorResponse,
+            history: writingTutorResponse.history,
+            threadTs: writingTutorResponse.slackResult.ts
+
+       })
+       llog.magenta(frenemyResult)
+       const bestFriendResult = await bestFriend({
+            client,
+            message,
+            writingTutorMessage: writingTutorResponse.tutorResponse,
+            frenemyMessage: frenemyResult.message.text,
+            history: writingTutorResponse.history,
+            threadTs: writingTutorResponse.slackResult.ts
+       })
     } else if ( message.channel == process.env.SLACK_WORK_CHANNEL) {
         llog.cyan(`handling message because ${message.channel} is the summer work channel`);
-        const workBotResult = await ({ client, message });
+        // const workBotResult = await ({ client, message });
+        
     } 
     
     else {
